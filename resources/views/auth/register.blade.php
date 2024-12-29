@@ -10,11 +10,11 @@
         </div>
 
         <!-- age -->
-        <div>
+        <!-- <div>
             <x-input-label for="age" :value="__('Age')" />
             <x-text-input id="age" class="block mt-1 w-full" type="text" name="age" :value="old('age')" required autofocus autocomplete="age" />
             <x-input-error :messages="$errors->get('age')" class="mt-2" />
-        </div>
+        </div> -->
         <!-- Email Address -->
         <div class="mt-4">
             <x-input-label for="email" :value="__('Email')" />
@@ -53,6 +53,23 @@
             </select>
             <x-input-error :messages="$errors->get('binusian')" class="mt-2" />
         </div>
+
+        <!-- informasi leader -->
+
+        <!-- nama leader  -->
+        <!-- <div>
+            <x-input-label for="nama_leader" :value="__('Nama Leader')" />
+            <x-text-input id="nama_leader" class="block mt-1 w-full" type="text" name="nama_leader" :value="old('nama_leader')" required autofocus autocomplete="nama_leader" />
+            <x-input-error :messages="$errors->get('nama_Leader')" class="mt-2" />
+        </div> -->
+
+        <!-- email leader -->
+        <!-- <div class="mt-4">
+            <x-input-label for="email_leader" :value="__('Email Leader')" />
+            <x-text-input id="email_leader" class="block mt-1 w-full" type="email_leader" name="email_leader" :value="old('email_leader')" required autocomplete="email_leader" />
+            <x-input-error :messages="$errors->get('email_leader')" class="mt-2" />
+        </div> -->
+        
 
         <div class="flex items-center justify-end mt-4">
             <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">

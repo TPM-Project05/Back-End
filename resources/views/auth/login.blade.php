@@ -38,10 +38,14 @@
                     {{ __('Forgot your password?') }}
                 </a>
             @endif
+            <div class="text-center mt-4">
+    <p>Don’t have an account? <a href="{{ route('register') }}">Sign up</a></p>
+</div>
 
             <x-primary-button class="ms-3">
                 {{ __('Log in') }}
             </x-primary-button>
+            
         </div>
     </form>
 </x-guest-layout>

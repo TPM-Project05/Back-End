@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LeaderController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,4 +18,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/leader-form', [LeaderController::class,'showForm'])->name('leader.form');
+Route::post('/submit-leader-data', [LeaderController::class, 'submitLeaderData'])->name('leader.submit');
 require __DIR__.'/auth.php';
