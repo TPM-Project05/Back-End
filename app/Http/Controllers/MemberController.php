@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Leader;
 use Illuminate\Http\Request;
+use App\Models\Member;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class LeaderController extends Controller
+class MemberController extends Controller
 {
     // Menambahkan middleware untuk memverifikasi token JWT
-
     public function create()
     {
-        return view('auth.leaders');
+        return view('auth.members');
     }
 
     public function store(Request $request)
@@ -48,13 +47,8 @@ class LeaderController extends Controller
             'cv.required' => 'CV wajib diunggah',
         ]);
 
-        // Periksa apakah sudah ada leader untuk tim ini
-        if ($team->leader_id) {
-            return response()->json(['error' => 'Tim sudah memiliki leader'], 400);
-        }
-
-        // Menyimpan data leader ke tabel `members`
-        $leader = Leader::create([
+        // Menyimpan data anggota ke tabel `members` (Tidak perlu leader_id)
+        $member = Member::create([
             'team_id' => $team->id, // Menghubungkan dengan tim berdasarkan pengguna yang login
             'full_name' => $request->full_name,
             'phone' => $request->phone,
@@ -64,17 +58,12 @@ class LeaderController extends Controller
             'birth_date' => $request->birth_date,
             'cv' => $request->file('cv')->store('cv'),
             'flazz_card' => $request->file('flazz_card') ? $request->file('flazz_card')->store('flazz_card') : null,
-            'status' => 'leader', // Tandai sebagai leader
-        ]);
-
-        // Update kolom `leader_id` di tabel `teams`
-        $team->update([
-            'leader_id' => $leader->id, // ID dari leader yang baru ditambahkan
+            'status' => 'member', // Status anggota biasa
         ]);
 
         return response()->json([
-            'message' => 'Data leader berhasil disimpan dan tim diperbarui',
-            'leader' => $leader,
+            'message' => 'Data anggota berhasil disimpan',
+            'member' => $member,
             'team' => $team,
         ]);
     }

@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Leader', function (Blueprint $table) {
+        Schema::create('members', function (Blueprint $table) {
             $table->id();
             $table->string('full_name');
-            $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->string('line_id')->unique();
             $table->string('github_id');
@@ -23,7 +22,9 @@ return new class extends Migration
             $table->string('cv');
             $table->string('flazz_card')->nullable();
             $table->string('id_card')->nullable();
+            $table->unsignedBigInteger('team_id')->nullable();
             $table->timestamps();
+            $table->foreign('team_id')->references('id')->on('teams')->onDelete('cascade');
         });
     }
 
@@ -32,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('leaders');
+        Schema::dropIfExists('members');
     }
 };

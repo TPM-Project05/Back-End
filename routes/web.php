@@ -10,9 +10,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -22,9 +20,6 @@ Route::middleware('auth')->group(function () {
 
 // untuk leader
 
-Route::middleware('auth')->group(function(){
-    Route::get('/leaders/create', [LeaderController::class, 'create'])->name('auth.leaders');
-    Route::post('/leaders', [LeaderController::class, 'store'])->name('leaders.store');
-});
+
 
 require __DIR__.'/auth.php';

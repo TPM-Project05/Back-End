@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->append(JwtMiddleware::class);
         $middleware->validateCsrfTokens(
             // // Tentukan route yang tidak perlu perlindungan CSRF
             except: ['/*']
@@ -20,3 +21,5 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
+
+    
