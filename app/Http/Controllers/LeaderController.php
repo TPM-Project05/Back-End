@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Leader;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
+
+
 
 class LeaderController extends Controller
 {
@@ -18,7 +21,7 @@ class LeaderController extends Controller
     public function store(Request $request)
     {
         // Ambil data pengguna yang terautentikasi (Team)
-        $team = auth()->user(); // Mengambil tim berdasarkan pengguna yang sedang login
+        $team = Auth::user(); // Mengambil tim berdasarkan pengguna yang sedang login
 
         if (!$team) {
             return response()->json(['error' => 'User not authenticated or team not found'], 401);
