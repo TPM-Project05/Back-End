@@ -18,6 +18,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\AdminController;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\TeamController;
 
 // Route untuk user yang belum login
 Route::middleware('guest')->group(function () {
@@ -72,5 +73,6 @@ Route::middleware([JwtMiddleware::class, AdminMiddleware::class])->group(functio
     Route::delete('/admin/members/{id}', [AdminController::class, 'deleteMember']);
     Route::delete('/admin/leaders/{id}', [AdminController::class, 'deleteLeader']);
     Route::delete('/admin/team/{id}', [AdminController::class, 'deleteTeam']);
+    Route::get('/teams', [TeamController::class, 'index']);
 });
 

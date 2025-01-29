@@ -203,4 +203,6 @@ public function editLeaders(Request $request, $id)
 
         return response()->json(['message' => 'Leader deleted successfully'], 200);
     }
+
+    
 }

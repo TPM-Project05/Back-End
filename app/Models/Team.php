@@ -63,7 +63,22 @@ class Team extends Authenticatable implements JWTSubject
         return $this->hasOne(Leader::class, 'team_id');
     }   
 
-    
+    public function scopeSearch($query, $term)
+    {
+        if ($term) {
+            return $query->where('name', 'like', "%{$term}%");
+        }
+    }
+
+    // Scope untuk pengurutan
+    public function scopeSort($query, $sortField, $sortDirection)
+    {
+        $validFields = ['name', 'created_at']; // Field yang valid untuk sorting
+        $sortField = in_array($sortField, $validFields) ? $sortField : 'name'; // Default ke 'name'
+        $sortDirection = $sortDirection === 'desc' ? 'desc' : 'asc'; // Default ke 'asc'
+
+        return $query->orderBy($sortField, $sortDirection);
+    }
 
     /**
      * Relasi ke Members (anggota tim yang bukan leader).

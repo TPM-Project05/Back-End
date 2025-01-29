@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Auth;
+
 
 class JWTAuthController extends Controller
 {
@@ -54,7 +56,7 @@ class JWTAuthController extends Controller
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-        $team = auth()->user();
+        $team = Auth::user();
 
 
         // Menambahkan klaim tambahan pada token (jika perlu)
@@ -98,13 +100,13 @@ class JWTAuthController extends Controller
     // Refresh JWT Token
     public function refresh()
     {
-        $token = auth()->refresh();
+        $token = Auth::refresh();
 
         return response()->json([
             "status" => true,
             "message" => "New access token",
             "token" => $token,
-            "expires_in" => auth()->factory()->getTTL() * 60
+            "expires_in" => Auth::factory()->getTTL() * 60
         ]);
     }
 }
