@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Member;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Storage;
+
 
 class MemberController extends Controller
 {
-    // Menambahkan middleware untuk memverifikasi token JWT
     public function create()
     {
         return view('auth.members');
@@ -21,6 +22,14 @@ class MemberController extends Controller
 
         if (!$team) {
             return response()->json(['error' => 'User not authenticated or team not found'], 401);
+        }
+
+        // Cek jumlah anggota saat ini berdasarkan `team_id`
+        $currentMemberCount = Member::where('team_id', $team->id)->count();
+        if ($currentMemberCount >= 3) {
+            return response()->json([
+                'error' => 'Tim telah mencapai batas maksimal 3 anggota',
+            ], 400);
         }
 
         // Validasi input
@@ -47,6 +56,11 @@ class MemberController extends Controller
             'cv.required' => 'CV wajib diunggah',
         ]);
 
+        $cvPath = $request->file('cv')->storePublicly('cv', 'public');
+    $flazzCardPath = $request->file('flazz_card') 
+        ? $request->file('flazz_card')->storePublicly('flazz_card', 'public') 
+        : null;
+
         // Menyimpan data anggota ke tabel `members` (Tidak perlu leader_id)
         $member = Member::create([
             'team_id' => $team->id, // Menghubungkan dengan tim berdasarkan pengguna yang login
@@ -60,6 +74,9 @@ class MemberController extends Controller
             'flazz_card' => $request->file('flazz_card') ? $request->file('flazz_card')->store('flazz_card') : null,
             'status' => 'member', // Status anggota biasa
         ]);
+
+        $member->cv_url = Storage::url($cvPath);
+        $member->flazz_card_url = $flazzCardPath ? Storage::url($flazzCardPath) : null;
 
         return response()->json([
             'message' => 'Data anggota berhasil disimpan',

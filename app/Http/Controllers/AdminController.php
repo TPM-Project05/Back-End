@@ -16,113 +16,131 @@ class AdminController extends Controller
     /**
      * Edit Member berdasarkan ID
      */
-    public function editMember(Request $request, $id)
-{
-    // Validasi input
-    $request->validate([
-        'full_name' => 'nullable|string|max:255',
-        'phone' => 'nullable|digits_between:9,15|unique:members,phone,' . $id,
-        'line_id' => 'nullable|string|unique:members,line_id,' . $id,
-        'github_id' => 'nullable|string|max:255',
-        'birth_place' => 'nullable|string|max:255',
-        'birth_date' => 'nullable|date|before_or_equal:' . now()->subYears(17)->format('Y-m-d'),
-        'cv' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',  // Validasi untuk CV
-        'flazz_card' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',  // Validasi untuk flazz_card
-    ]);
 
-    // Cari Member berdasarkan ID
-    $member = Member::findOrFail($id);
-
-    // Handle file upload (CV dan flazz_card)
-    $cvPath = $member->cv;
-    if ($request->hasFile('cv')) {
-        // Hapus file lama jika ada
-        if ($cvPath) {
-            Storage::delete($cvPath);
+    
+    public function updateMember(Request $request, $id)
+    {
+        // Validasi input
+        $request->validate([
+            'full_name' => 'required|string|max:255',
+            'phone' => 'nullable|digits_between:9,15|unique:members,phone,' . $id,
+            'line_id' => 'nullable|string|unique:members,line_id,' . $id,
+            'github_id' => 'nullable|string|max:255',
+            'birth_place' => 'nullable|string|max:255',
+            'birth_date' => 'nullable|date|before_or_equal:' . now()->subYears(17)->format('Y-m-d'),
+            'cv' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',  // Validasi untuk CV
+            'flazz_card' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',  // Validasi untuk flazz_card
+        ]);
+    
+        // Cari Member berdasarkan ID
+        $member = Member::findOrFail($id);
+    
+        // Handle file upload (CV dan flazz_card)
+        $cvPath = $member->cv;
+        if ($request->hasFile('cv')) {
+            // Hapus file lama jika ada
+            if ($cvPath) {
+                Storage::delete($cvPath);
+            }
+            // Simpan file baru ke disk 'public'
+            $cvPath = $request->file('cv')->storePublicly('cv', 'public');
         }
-        // Simpan file baru
-        $cvPath = $request->file('cv')->store('cv');
+    
+        $flazzCardPath = $member->flazz_card;
+        if ($request->hasFile('flazz_card')) {
+            // Hapus file lama jika ada
+            if ($flazzCardPath) {
+                Storage::delete($flazzCardPath);
+            }
+            // Simpan file baru ke disk 'public'
+            $flazzCardPath = $request->file('flazz_card')->storePublicly('flazz_card', 'public');
+        }
+    
+        // Update data Member
+        $member->update($request->only([
+            'full_name',
+            'phone',
+            'line_id',
+            'github_id',
+            'birth_place',
+            'birth_date',
+        ]) + [
+            'cv' => $cvPath,  // Menyimpan path file CV
+            'flazz_card' => $flazzCardPath,  // Menyimpan path file Flazz Card
+        ]);
+    
+        return response()->json(['message' => 'Member updated successfully', 'member' => $member], 200);
+
+    }
+    public function create()
+    {
+        return view('auth.leaders');
     }
 
-    $flazzCardPath = $member->flazz_card;
-    if ($request->hasFile('flazz_card')) {
-        // Hapus file lama jika ada
-        if ($flazzCardPath) {
-            Storage::delete($flazzCardPath);
+    public function editLeaders(Request $request, $id)
+    {
+        try {
+            // Validasi input
+            $validatedData = $request->validate([
+                'full_name' => 'required|string|max:255',
+                'phone' => 'nullable|digits_between:9,15|unique:leaders,phone,' . $id,
+                'line_id' => 'nullable|string|unique:leaders,line_id,' . $id,
+                'github_id' => 'nullable|string|max:255',
+                'birth_place' => 'nullable|string|max:255',
+                'birth_date' => 'nullable|date|before_or_equal:' . now()->subYears(17)->format('Y-m-d'),
+                'cv' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048', // Validasi CV
+                'flazz_card' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048', // Validasi flazz_card
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Kembalikan response JSON dengan error validasi
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
         }
-        // Simpan file baru
-        $flazzCardPath = $request->file('flazz_card')->store('flazz_card');
-    }
-
-    // Update data Member
-    $member->update($request->only([
-        'full_name',
-        'phone',
-        'line_id',
-        'github_id',
-        'birth_place',
-        'birth_date',
-    ]) + [
-        'cv' => $cvPath,  // Menyimpan path file CV
-        'flazz_card' => $flazzCardPath,  // Menyimpan path file Flazz Card
-    ]);
-
-    return response()->json(['message' => 'Member updated successfully', 'member' => $member], 200);
-}
-
-public function editLeaders(Request $request, $id)
-{
-    // Validasi input
-    $request->validate([
-        'full_name' => 'nullable|string|max:255',
-        'phone' => 'nullable|digits_between:9,15|unique:Leaders,phone,' . $id,
-        'line_id' => 'nullable|string|unique:Leaders,line_id,' . $id,
-        'github_id' => 'nullable|string|max:255',
-        'birth_place' => 'nullable|string|max:255',
-        'birth_date' => 'nullable|date|before_or_equal:' . now()->subYears(17)->format('Y-m-d'),
-        'cv' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',  // Validasi untuk CV
-        'flazz_card' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',  // Validasi untuk flazz_card
-    ]);
-
-    // Cari Leaders berdasarkan ID
-    $Leaders = Leader::findOrFail($id);
-
-    // Handle file upload (CV dan flazz_card)
-    $cvPath = $Leaders->cv;
-    if ($request->hasFile('cv')) {
-        // Hapus file lama jika ada
-        if ($cvPath) {
-            Storage::delete($cvPath);
+    
+        // Cari Leaders berdasarkan ID
+        $leader = Leader::findOrFail($id);
+    
+        // Handle file upload (CV)
+        $cvPath = $leader->cv;
+        if ($request->hasFile('cv')) {
+            // Hapus file lama jika ada
+            if ($cvPath) {
+                Storage::delete($cvPath);
+            }
+            // Simpan file baru ke disk 'public'
+            $cvPath = $request->file('cv')->storePublicly('cv', 'public');
         }
-        // Simpan file baru
-        $cvPath = $request->file('cv')->store('cv');
-    }
-
-    $flazzCardPath = $Leaders->flazz_card;
-    if ($request->hasFile('flazz_card')) {
-        // Hapus file lama jika ada
-        if ($flazzCardPath) {
-            Storage::delete($flazzCardPath);
+    
+        // Handle file upload (Flazz Card)
+        $flazzCardPath = $leader->flazz_card;
+        if ($request->hasFile('flazz_card')) {
+            // Hapus file lama jika ada
+            if ($flazzCardPath) {
+                Storage::delete($flazzCardPath);
+            }
+            // Simpan file baru ke disk 'public'
+            $flazzCardPath = $request->file('flazz_card')->storePublicly('flazz_card', 'public');
         }
-        // Simpan file baru
-        $flazzCardPath = $request->file('flazz_card')->store('flazz_card');
+    
+        // Update data Leader
+        $leader->update($validatedData + [
+            'cv' => $cvPath,        // Menyimpan path file CV
+            'flazz_card' => $flazzCardPath, // Menyimpan path file Flazz Card
+        ]);
+    
+        // Debug data untuk memastikan input diterima dengan benar
+        dd($request->all());
+    
+        // Response JSON sukses
+        return response()->json([
+            'message' => 'Leader updated successfully',
+            'leader' => $leader,
+        ], 200);
     }
+    
 
-    // Update data Leaders
-    $Leaders->update($request->only([
-        'full_name',
-        'phone',
-        'line_id',
-        'github_id',
-        'birth_place',
-        'birth_date',
-    ]) + [
-        'cv' => $cvPath,  // Menyimpan path file CV
-        'flazz_card' => $flazzCardPath,  // Menyimpan path file Flazz Card
-    ]);
-
-    return response()->json(['message' => 'Leaders updated successfully', 'Leaders' => $Leaders], 200);
-}
 
     /**
      * Edit Team berdasarkan ID
@@ -131,7 +149,7 @@ public function editLeaders(Request $request, $id)
     {
         // Validasi input
         $request->validate([
-            'name' => 'nullable|string|max:255',
+            'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:teams,email,' . $id,
             'role' => 'nullable|string|in:admin,non-binusian,binusian',
             'status' => 'nullable|string|in:active,inactive',
