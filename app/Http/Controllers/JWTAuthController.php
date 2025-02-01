@@ -22,7 +22,7 @@ class JWTAuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:teams',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => 'required|string', // Role bisa berupa 'admin', 'user', dsb.
+            'role' => 'string', // Role bisa berupa 'admin', 'user', dsb.
             'status' => 'required|string', // Status bisa berupa 'active', 'inactive', dsb.
             'leader_id' => 'nullable|integer|exists:users,id', // Jika memiliki pemimpin tim
         ]);

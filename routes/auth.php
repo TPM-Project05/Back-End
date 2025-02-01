@@ -20,6 +20,13 @@ use App\Http\Controllers\AdminController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\TeamController;
 
+use App\Http\Controllers\SubscribeController;
+use App\Http\Controllers\ContactUsController;
+
+
+Route::post('/subscribe', [SubscribeController::class, 'store'])->name('subscribe.store');
+Route::get('/contact-us', [ContactUsController::class, 'create'])->name('contact_us.create');
+Route::post('/contact-us', [ContactUsController::class, 'store'])->name('contact_us.store');
 // Route untuk user yang belum login
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
@@ -39,10 +46,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('refresh', [JWTAuthController::class, 'refresh']);
     
     // Verifikasi email
-    Route::get('verify-email', EmailVerificationPromptController::class)->name('verification.notice');
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
         ->middleware('throttle:6,1')
         ->name('verification.send');
@@ -65,9 +68,30 @@ Route::middleware([JwtMiddleware::class])->group(function(){
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
+Route::get('/files/cv/{filename}', function ($filename) {
+    $path = public_path("storage/cv/{$filename}");
+
+    if (!file_exists($path)) {
+        abort(404, 'File tidak ditemukan');
+    }
+
+    return response()->download($path);
+})->middleware();
+
+Route::get('/files/flazz_card/{filename}', function ($filename) {
+    $path = public_path("storage/flazz_card/{$filename}");
+
+    if (!file_exists($path)) {
+        abort(404, 'File tidak ditemukan');
+    }
+
+    return response()->download($path);
+})->middleware();
+
+
 
 Route::middleware([JwtMiddleware::class, AdminMiddleware::class])->group(function () {
-    Route::put('/admin/members/{id}', [AdminController::class, 'editMember']);
+    Route::put('/admin/members/{id}', [AdminController::class, 'updateMember']);
     Route::put('/admin/teams/{id}', [AdminController::class, 'editTeam']);
     Route::put('/admin/leaders/{id}', [AdminController::class, 'editLeaders']);
     Route::delete('/admin/members/{id}', [AdminController::class, 'deleteMember']);
